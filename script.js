@@ -133,5 +133,96 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Extracted info:', { videoId, channelId, username });
         return { videoId, channelId, username };
     }
+    // Función para cargar la plantilla seleccionada
+    function loadSelectedTemplate(templateId, { videoId, channelId, username, url }) {
+        console.log('Loading template:', templateId, 'with data:', { videoId, channelId, username, url });
+        
+        switch(templateId) {
+            case '1': // YouTube Channel
+                if (channelId) {
+                    loadYouTubeChannel(channelId);
+                } else if (username) {
+                    loadYouTubeChannel(username);
+                } else if (videoId) {
+                    // Si solo tenemos un ID de video, intentamos obtener el canal a partir de él
+                    loadYouTubeChannel(videoId);
+                } else {
+                    alert('No se pudo determinar el canal. Por favor, ingresa una URL de canal válida.');
+                }
+                break;
+                
+            case '2': // Video Grid
+                if (channelId) {
+                    loadVideoGrid(channelId);
+                } else if (username) {
+                    loadVideoGrid(username);
+                } else if (videoId) {
+                    // Si solo tenemos un ID de video, intentamos obtener el canal a partir de él
+                    loadVideoGrid(videoId);
+                } else {
+                    alert('No se pudo determinar el canal o playlist. Por favor, ingresa una URL válida.');
+                }
+                break;
+                
+            case '3': // Single Video
+                if (videoId) {
+                    loadSingleVideo(videoId);
+                } else {
+                    alert('No se pudo determinar el ID del video. Por favor, ingresa una URL de video válida.');
+                }
+                break;
+                
+            case '4': // YouTube Subscribe
+                if (channelId) {
+                    loadYouTubeSubscribe(channelId);
+                } else if (username) {
+                    loadYouTubeSubscribe(username);
+                } else if (videoId) {
+                    // Si solo tenemos un ID de video, intentamos obtener el canal a partir de él
+                    loadYouTubeSubscribe(videoId);
+                } else {
+                    alert('No se pudo determinar el canal. Por favor, ingresa una URL de canal válida.');
+                }
+                break;
+                
+            case '5': // Video Gallery
+                if (channelId) {
+                    loadVideoGallery(channelId);
+                } else if (username) {
+                    loadVideoGallery(username);
+                } else if (videoId) {
+                    // Si solo tenemos un ID de video, intentamos obtener el canal a partir de él
+                    loadVideoGallery(videoId);
+                } else {
+                    alert('No se pudo determinar el canal o playlist. Por favor, ingresa una URL válida.');
+                }
+                break;
+                
+            case '7': // Video List
+                if (channelId) {
+                    loadVideoList(channelId);
+                } else if (username) {
+                    loadVideoList(username);
+                } else if (videoId) {
+                    // Si solo tenemos un ID de video, intentamos obtener el canal a partir de él
+                    loadVideoList(videoId);
+                } else {
+                    alert('No se pudo determinar el canal o playlist. Por favor, ingresa una URL válida.');
+                }
+                break;
+                
+            default:
+                alert('Plantilla no implementada.');
+        }
+    }
+    
+    // Event listener para el botón de generar código embed
+    embedBtn.addEventListener('click', function() {
+        generateEmbedCode(selectedTemplate, {
+            videoId: currentVideoId,
+            channelId: currentChannelId,
+            username: currentUsername
+        });
+    });
     
 });
