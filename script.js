@@ -224,5 +224,155 @@ document.addEventListener('DOMContentLoaded', function() {
             username: currentUsername
         });
     });
-    
+    // Función para generar código embed
+    function generateEmbedCode(templateId, { videoId, channelId, username }) {
+        if (!templateId) {
+            alert('Por favor, selecciona una plantilla primero.');
+            return;
+        }
+        
+        if (!videoId && !channelId && !username) {
+            alert('No hay suficiente información para generar el código embed.');
+            return;
+        }
+        
+        // Determinar el identificador a usar
+        let identifier = channelId || username || videoId;
+        
+        // URL base donde estará alojado tu script (cámbiala por tu dominio real cuando subas el proyecto)
+        const scriptBaseUrl = window.location.origin;
+        
+        // Crear el código embed según la plantilla
+        let embedCode = '';
+        
+        switch(templateId) {
+            case '1': // YouTube Channel
+                embedCode = `<!-- YouTube Channel Embed -->
+<div class="youtube-template-embed" data-template="1" data-id="${identifier}"></div>
+<script src="${scriptBaseUrl}/youtube-embed-handler.js"></script>`;
+                break;
+            case '2': // Video Grid
+                embedCode = `<!-- YouTube Video Grid Embed -->
+<div class="youtube-template-embed" data-template="2" data-id="${identifier}"></div>
+<script src="${scriptBaseUrl}/youtube-embed-handler.js"></script>`;
+                break;
+            case '3': // Single Video
+                embedCode = `<!-- YouTube Single Video Embed -->
+<div class="youtube-template-embed" data-template="3" data-id="${identifier}"></div>
+<script src="${scriptBaseUrl}/youtube-embed-handler.js"></script>`;
+                break;
+            case '4': // YouTube Subscribe
+                embedCode = `<!-- YouTube Subscribe Button Embed -->
+<div class="youtube-template-embed" data-template="4" data-id="${identifier}"></div>
+<script src="${scriptBaseUrl}/youtube-embed-handler.js"></script>`;
+                break;
+            case '5': // Video Gallery
+                embedCode = `<!-- YouTube Video Gallery Embed -->
+<div class="youtube-template-embed" data-template="5" data-id="${identifier}"></div>
+<script src="${scriptBaseUrl}/youtube-embed-handler.js"></script>`;
+                break;
+            case '7': // Video List
+                embedCode = `<!-- YouTube Video List Embed -->
+<div class="youtube-template-embed" data-template="7" data-id="${identifier}"></div>
+<script src="${scriptBaseUrl}/youtube-embed-handler.js"></script>`;
+                break;
+            default:
+                alert('Generación de código embed no implementada para esta plantilla.');
+                return;
+        }
+        
+        // Mostrar el código en un modal
+        const modal = document.createElement('div');
+        modal.className = 'embed-modal';
+        modal.innerHTML = `
+            <div class="embed-modal-content">
+                <span class="close-modal">&times;</span>
+                <h3>Código para Embed</h3>
+                <p>Copia y pega este código en cualquier sitio HTML donde quieras mostrar la plantilla:</p>
+                <textarea readonly style="width: 100%; height: 120px; margin: 10px 0; padding: 8px; font-family: monospace;">${embedCode}</textarea>
+                <button id="copy-embed" class="copy-btn">Copiar Código</button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Añadir estilos para el modal si no existen
+        if (!document.getElementById('embed-modal-styles')) {
+            const styleElement = document.createElement('style');
+            styleElement.id = 'embed-modal-styles';
+            styleElement.textContent = `
+                .embed-modal {
+                    display: block;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    z-index: 1000;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                
+                .embed-modal-content {
+                    background-color: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    width: 90%;
+                    max-width: 600px;
+                    position: relative;
+                }
+                
+                .close-modal {
+                    position: absolute;
+                    top: 10px;
+                    right: 15px;
+                    font-size: 24px;
+                    font-weight: bold;
+                    cursor: pointer;
+                }
+                
+                .copy-btn {
+                    background-color: #4285f4;
+                    color: white;
+                    border: none;
+                    padding: 10px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                }
+                
+                .copy-btn:hover {
+                    background-color: #3367d6;
+                }
+            `;
+            document.head.appendChild(styleElement);
+        }
+        
+        // Evento para cerrar el modal
+        modal.querySelector('.close-modal').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        // Evento para copiar el código
+        modal.querySelector('#copy-embed').addEventListener('click', () => {
+            const textarea = modal.querySelector('textarea');
+            textarea.select();
+            document.execCommand('copy');
+            
+            const copyBtn = modal.querySelector('#copy-embed');
+            copyBtn.textContent = '¡Copiado!';
+            setTimeout(() => {
+                copyBtn.textContent = 'Copiar Código';
+            }, 2000);
+        });
+        
+        // También cerrar al hacer clic fuera del contenido
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+    }
 });
