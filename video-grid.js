@@ -84,7 +84,55 @@ async function loadVideoGrid(channelId) {
                 </div>
             </div>
         `;
+        // Almacenar todos los videos para filtrado
+        const allVideos = [...videosWithDetails];
         
+        // Añadir event listeners a los videos
+        const addVideoListeners = () => {
+            const videoItems = document.querySelectorAll('.video-item');
+            videoItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const videoId = item.getAttribute('data-video-id');
+                    const title = item.querySelector('h5').textContent;
+                    showModal(videoId, title);
+                });
+            });
+        };
+        
+        // Inicializar los listeners de videos
+        addVideoListeners();
+        
+        // Event listener para el filtro
+        const gridFilter = document.querySelector('.grid-filter');
+        gridFilter.addEventListener('change', () => {
+            const filterValue = gridFilter.value;
+            let filteredVideos = [...allVideos];
+            
+            if (filterValue === 'date') {
+                filteredVideos.sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt));
+            } else if (filterValue === 'title') {
+                filteredVideos.sort((a, b) => a.snippet.title.localeCompare(b.snippet.title));
+            }
+            
+            // Actualizar la cuadrícula con los videos filtrados
+            const videoGrid = document.querySelector('.video-grid');
+            videoGrid.innerHTML = filteredVideos.map(video => `
+                <div class="video-item" data-video-id="${video.id.videoId}">
+                    <div class="thumbnail-container">
+                        <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}">
+                        <div class="play-button"></div>
+                        ${video.contentDetails ? `
+                            <div class="video-duration">${formatDuration(video.contentDetails.duration)}</div>
+                        ` : ''}
+                    </div>
+                    <h5>${video.snippet.title}</h5>
+                    <p class="video-date">${new Date(video.snippet.publishedAt).toLocaleDateString()}</p>
+                </div>
+            `).join('');
+            
+            // Volver a añadir event listeners
+            addVideoListeners();
+        });
         
         
     } catch (error) {
