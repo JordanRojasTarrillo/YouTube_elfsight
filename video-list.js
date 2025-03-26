@@ -60,7 +60,102 @@ async function loadVideoList(channelIdOrVideoId) {
                 contentDetails: stats ? stats.contentDetails : null
             };
         });
-        
+        // Crear HTML para la plantilla de lista de videos
+        templatePreview.innerHTML = `
+            <div class="video-list-container">
+                <div class="list-header">
+                    <h3>Lista de Videos</h3>
+                    <div class="list-controls">
+                        <div class="search-box">
+                            <input type="text" id="video-search" placeholder="Buscar videos...">
+                            <button class="search-btn">
+                                <svg viewBox="0 0 24 24" width="16" height="16">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="sort-options">
+                            <select id="sort-videos">
+                                <option value="date-desc">Más recientes</option>
+                                <option value="date-asc">Más antiguos</option>
+                                <option value="views">Más vistos</option>
+                                <option value="title">Alfabético</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-list">
+                    <div class="list-column-headers">
+                        <div class="column-header thumbnail-col">#</div>
+                        <div class="column-header title-col">Título</div>
+                        <div class="column-header date-col">Fecha</div>
+                        <div class="column-header views-col">Vistas</div>
+                        <div class="column-header duration-col">Duración</div>
+                    </div>
+                    
+                    <div class="list-items">
+                        ${videosWithStats.map((video, index) => `
+                            <div class="list-item" data-video-id="${video.id.videoId}">
+                                <div class="item-thumbnail">
+                                    <span class="item-number">${index + 1}</span>
+                                    <div class="thumbnail-wrapper">
+                                        <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title}">
+                                        <div class="play-icon">
+                                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                                <path d="M8,5.14V19.14L19,12.14L8,5.14Z" fill="currentColor"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item-title">
+                                    <h4>${video.snippet.title}</h4>
+                                    <p class="item-channel">${video.snippet.channelTitle}</p>
+                                </div>
+                                <div class="item-date">${new Date(video.snippet.publishedAt).toLocaleDateString()}</div>
+                                <div class="item-views">
+                                    <svg viewBox="0 0 24 24" width="14" height="14">
+                                        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"></path>
+                                    </svg>
+                                    ${video.statistics ? formatNumber(video.statistics.viewCount) : 'N/A'}
+                                </div>
+                                <div class="item-duration">
+                                    <svg viewBox="0 0 24 24" width="14" height="14">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle>
+                                        <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"></polyline>
+                                    </svg>
+                                    ${video.contentDetails ? formatDuration(video.contentDetails.duration) : 'N/A'}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="list-pagination">
+                    <div class="pagination-info">
+                        Mostrando <span class="current-range">1-${Math.min(maxResults, videosWithStats.length)}</span> de <span class="total-count">${videosWithStats.length}</span> videos
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn" disabled>
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
+                            Anterior
+                        </button>
+                        <div class="page-numbers">
+                            <span class="page-number active">1</span>
+                        </div>
+                        <button class="pagination-btn" disabled>
+                            Siguiente
+                            <svg viewBox="0 0 24 24" width="16" height="16">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
         
     } catch (error) {
         handleLoadError(error, 'template-preview', 'Error al cargar la lista de videos');
