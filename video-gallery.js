@@ -155,7 +155,112 @@ async function loadVideoGallery(channelIdOrVideoId) {
                 </div>
             </div>
         `;
+        // Almacenar todos los videos para filtrado
+        const allVideos = [...videosWithStats];
         
+        // Añadir event listeners a los videos
+        const addVideoListeners = () => {
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            galleryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const videoId = item.getAttribute('data-video-id');
+                    const title = item.querySelector('.video-title').textContent;
+                    showModal(videoId, title);
+                });
+            });
+        };
+        
+        // Inicializar los listeners de videos
+        addVideoListeners();
+        
+        // Event listeners para los botones de vista
+        const gridViewBtn = document.querySelector('.grid-view');
+        const listViewBtn = document.querySelector('.list-view');
+        const videoGallery = document.querySelector('.video-gallery');
+        
+        gridViewBtn.addEventListener('click', () => {
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+            videoGallery.classList.add('grid-view-active');
+            videoGallery.classList.remove('list-view-active');
+        });
+        
+        listViewBtn.addEventListener('click', () => {
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            videoGallery.classList.remove('grid-view-active');
+            videoGallery.classList.add('list-view-active');
+        });
+        
+        // Event listener para el selector de filtro
+        const filterSelect = document.querySelector('.filter-select');
+        filterSelect.addEventListener('change', () => {
+            const sortBy = filterSelect.value;
+            let sortedVideos = [...allVideos];
+            
+            if (sortBy === 'popular') {
+                sortedVideos.sort((a, b) => {
+                    const viewsA = a.statistics ? parseInt(a.statistics.viewCount) : 0;
+                    const viewsB = b.statistics ? parseInt(b.statistics.viewCount) : 0;
+                    return viewsB - viewsA;
+                });
+            } else if (sortBy === 'recent') {
+                sortedVideos.sort((a, b) => {
+                    return new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt);
+                });
+            } else if (sortBy === 'oldest') {
+                sortedVideos.sort((a, b) => {
+                    return new Date(a.snippet.publishedAt) - new Date(b.snippet.publishedAt);
+                });
+            }
+            
+            // Actualizar la galería con los videos ordenados
+            const videoGallery = document.querySelector('.video-gallery');
+            videoGallery.innerHTML = sortedVideos.map(video => `
+                <div class="gallery-item" data-video-id="${video.id.videoId}">
+                    <div class="gallery-thumbnail">
+                        <img src="${video.snippet.thumbnails.high.url}" alt="${video.snippet.title}">
+                        <div class="thumbnail-overlay">
+                            <div class="play-button">
+                                <svg viewBox="0 0 24 24" width="48" height="48">
+                                    <circle cx="12" cy="12" r="10" fill="rgba(0,0,0,0.5)"></circle>
+                                    <path d="M10,8l6,4l-6,4V8z" fill="white"></path>
+                                </svg>
+                            </div>
+                            ${video.contentDetails ? `
+                                <span class="video-duration">${formatDuration(video.contentDetails.duration)}</span>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="gallery-info">
+                        <h4 class="video-title">${video.snippet.title}</h4>
+                        <div class="video-meta">
+                            <span class="video-date">${new Date(video.snippet.publishedAt).toLocaleDateString()}</span>
+                            ${video.statistics ? `
+                                <div class="video-stats">
+                                    <span class="views-count" title="Vistas">
+                                        <svg viewBox="0 0 24 24" width="14" height="14">
+                                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"></path>
+                                        </svg>
+                                        ${formatNumber(video.statistics.viewCount)}
+                                    </span>
+                                    <span class="likes-count" title="Me gusta">
+                                        <svg viewBox="0 0 24 24" width="14" height="14">
+                                            <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-1.91l-.01-.01L23 10z" fill="currentColor"></path>
+                                        </svg>
+                                        ${formatNumber(video.statistics.likeCount)}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <p class="video-description">${video.snippet.description.substring(0, 100)}${video.snippet.description.length > 100 ? '...' : ''}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Volver a añadir event listeners a los videos
+            addVideoListeners();
+        });
         
         
     } catch (error) {
