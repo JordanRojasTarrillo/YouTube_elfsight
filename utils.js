@@ -280,4 +280,496 @@ function showModal(videoId, title) {
         });
 }
 
-
+function addModalStyles() {
+    // Verificar si los estilos ya existen
+    if (document.getElementById('modal-styles')) return;
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = 'modal-styles';
+    styleElement.textContent = `
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.85);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background-color: #ffffff;
+            margin: 2% auto;
+            padding: 0;
+            width: 90%;
+            max-width: 850px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close {
+            color: #ffffff;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 0;
+            transition: all 0.2s ease;
+        }
+        .close:hover {
+            background: rgba(255,0,0,0.7);
+            transform: scale(1.1);
+        }
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .video-details {
+            padding: 24px;
+            font-family: 'Roboto', Arial, sans-serif;
+            color: #333;
+        }
+        .video-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+        .video-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+            color: #111;
+            line-height: 1.4;
+        }
+        .video-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .video-stats {
+            color: #606060;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        .video-stats .views {
+            font-weight: 500;
+            margin-right: 8px;
+            color: #333;
+        }
+        .video-stats .date::before {
+            content: "•";
+            margin: 0 8px;
+            color: #999;
+        }
+        .video-actions {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .action-btn {
+            background: #f5f5f5;
+            border: none;
+            padding: 8px 16px;
+            margin-right: 10px;
+            border-radius: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        .action-btn:last-child {
+            margin-right: 0;
+        }
+        .action-btn svg {
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+        }
+        .action-btn:hover {
+            background-color: #e0e0e0;
+        }
+        .like-btn {
+            color: #065fd4;
+        }
+        .channel-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .channel-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 16px;
+            border: 2px solid #f0f0f0;
+        }
+        .channel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .channel-avatar:hover img {
+            transform: scale(1.05);
+        }
+        .channel-details {
+            flex-grow: 1;
+        }
+        .channel-name {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #111;
+        }
+        .channel-subscribers {
+            font-size: 13px;
+            color: #606060;
+        }
+        .subscribe-btn {
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+        .subscribe-btn:hover {
+            background-color: #b00000;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .video-description {
+            margin-bottom: 24px;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.5;
+            background-color: #f9f9f9;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .description-text {
+            max-height: 120px;
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.3s ease;
+        }
+        .description-text.expanded {
+            max-height: none;
+        }
+        .description-text p {
+            margin: 0 0 10px 0;
+        }
+        .show-more-btn {
+            color: #065fd4;
+            background: none;
+            border: none;
+            padding: 8px 0;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: block;
+            margin-top: 8px;
+        }
+        .show-more-btn:hover {
+            text-decoration: underline;
+        }
+        .comments-section {
+            margin-top: 24px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .comments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .comments-header h4 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111;
+        }
+        .comments-sort {
+            display: flex;
+            align-items: center;
+            color: #606060;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 16px;
+            transition: background-color 0.2s ease;
+        }
+        .comments-sort:hover {
+            background-color: #e0e0e0;
+        }
+        .comments-sort svg {
+            margin-right: 8px;
+        }
+        .add-comment {
+            display: flex;
+            margin-bottom: 32px;
+            align-items: flex-start;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 16px;
+            border: 1px solid #e0e0e0;
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .comment-input {
+            flex-grow: 1;
+        }
+        .comment-input input {
+            width: 100%;
+            padding: 10px 0;
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+            outline: none;
+            background-color: transparent;
+            transition: border-color 0.2s ease;
+        }
+        .comment-input input:focus {
+            border-bottom-color: #065fd4;
+        }
+        .comments-list {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .comments-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .comments-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .comments-list::-webkit-scrollbar-thumb {
+            background: #c0c0c0;
+            border-radius: 10px;
+        }
+        .comments-list::-webkit-scrollbar-thumb:hover {
+            background: #a0a0a0;
+        }
+        .comment {
+            display: flex;
+            margin-bottom: 24px;
+            animation: fadeIn 0.5s ease;
+        }
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 16px;
+            border: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+        .comment-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .comment-content {
+            flex-grow: 1;
+        }
+        .comment-header {
+            margin-bottom: 4px;
+        }
+        .comment-author {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111;
+            margin-right: 8px;
+        }
+        .comment-date {
+            font-size: 13px;
+            color: #606060;
+        }
+        .comment-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            margin-bottom: 8px;
+            word-break: break-word;
+        }
+        .comment-actions {
+            display: flex;
+            align-items: center;
+        }
+        .comment-like, .comment-dislike {
+            background: none;
+            border: none;
+            padding: 6px 10px 6px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #606060;
+            font-size: 13px;
+            transition: color 0.2s ease;
+        }
+        .comment-like:hover, .comment-dislike:hover {
+            color: #111;
+        }
+        .comment-like svg, .comment-dislike svg {
+            margin-right: 6px;
+            width: 16px;
+            height: 16px;
+        }
+        .comment-reply {
+            background: none;
+            border: none;
+            padding: 6px 10px;
+            margin-left: 8px;
+            cursor: pointer;
+            color: #606060;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+        .comment-reply:hover {
+            color: #111;
+        }
+        .loading-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #065fd4;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-message {
+            color: #cc0000;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            background-color: #ffebee;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            .video-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .video-actions {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            .action-btn {
+                padding: 6px 12px;
+                margin-right: 5px;
+            }
+            .action-btn svg {
+                margin-right: 4px;
+            }
+            .channel-info {
+                flex-wrap: wrap;
+            }
+            .subscribe-btn {
+                margin-top: 10px;
+                width: 100%;
+            }
+            .comments-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .comments-sort {
+                margin-top: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .video-details {
+                padding: 16px;
+            }
+            .video-title {
+                font-size: 18px;
+            }
+            .action-btn {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            .action-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+            .channel-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            .comments-section {
+                padding: 15px;
+            }
+        }
+    `;
+    document.head.appendChild(styleElement);
+}
