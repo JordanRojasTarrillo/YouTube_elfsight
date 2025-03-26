@@ -60,6 +60,7 @@ async function loadVideoList(channelIdOrVideoId) {
                 contentDetails: stats ? stats.contentDetails : null
             };
         });
+        
         // Crear HTML para la plantilla de lista de videos
         templatePreview.innerHTML = `
             <div class="video-list-container">
@@ -156,6 +157,128 @@ async function loadVideoList(channelIdOrVideoId) {
                 </div>
             </div>
         `;
+        
+        // Almacenar todos los videos para búsqueda y ordenamiento
+        const allVideos = [...videosWithStats];
+        
+        // Función para actualizar la lista de videos
+        const updateVideoList = (videos) => {
+            const listItems = document.querySelector('.list-items');
+            listItems.innerHTML = videos.map((video, index) => `
+                <div class="list-item" data-video-id="${video.id.videoId}">
+                    <div class="item-thumbnail">
+                        <span class="item-number">${index + 1}</span>
+                        <div class="thumbnail-wrapper">
+                            <img src="${video.snippet.thumbnails.default.url}" alt="${video.snippet.title}">
+                            <div class="play-icon">
+                                <svg viewBox="0 0 24 24" width="24" height="24">
+                                    <path d="M8,5.14V19.14L19,12.14L8,5.14Z" fill="currentColor"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item-title">
+                        <h4>${video.snippet.title}</h4>
+                        <p class="item-channel">${video.snippet.channelTitle}</p>
+                    </div>
+                    <div class="item-date">${new Date(video.snippet.publishedAt).toLocaleDateString()}</div>
+                    <div class="item-views">
+                        <svg viewBox="0 0 24 24" width="14" height="14">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" fill="currentColor"></path>
+                        </svg>
+                        ${video.statistics ? formatNumber(video.statistics.viewCount) : 'N/A'}
+                    </div>
+                    <div class="item-duration">
+                        <svg viewBox="0 0 24 24" width="14" height="14">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"></circle>
+                            <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" fill="none"></polyline>
+                        </svg>
+                        ${video.contentDetails ? formatDuration(video.contentDetails.duration) : 'N/A'}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Actualizar el rango mostrado
+            const currentRange = document.querySelector('.current-range');
+            currentRange.textContent = `1-${Math.min(maxResults, videos.length)}`;
+            
+            // Actualizar el total
+            const totalCount = document.querySelector('.total-count');
+            totalCount.textContent = videos.length;
+            
+            // Añadir event listeners a los videos
+            addVideoListeners();
+        };
+        
+        // Añadir event listeners a los videos
+        const addVideoListeners = () => {
+            const listItems = document.querySelectorAll('.list-item');
+            listItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const videoId = item.getAttribute('data-video-id');
+                    const title = item.querySelector('h4').textContent;
+                    showModal(videoId, title);
+                });
+            });
+        };
+        
+        // Inicializar los listeners de videos
+        addVideoListeners();
+        
+        // Event listener para el campo de búsqueda
+        const searchInput = document.getElementById('video-search');
+        const searchBtn = document.querySelector('.search-btn');
+        
+        const performSearch = () => {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm === '') {
+                updateVideoList(allVideos);
+                return;
+            }
+            
+            const filteredVideos = allVideos.filter(video => 
+                video.snippet.title.toLowerCase().includes(searchTerm) || 
+                video.snippet.description.toLowerCase().includes(searchTerm)
+            );
+            
+            updateVideoList(filteredVideos);
+        };
+        
+        searchInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        searchBtn.addEventListener('click', performSearch);
+        
+        // Event listener para el selector de ordenamiento
+        const sortSelect = document.getElementById('sort-videos');
+        sortSelect.addEventListener('change', () => {
+            const sortBy = sortSelect.value;
+            let sortedVideos = [...allVideos];
+            
+            switch (sortBy) {
+                case 'date-desc':
+                    sortedVideos.sort((a, b) => new Date(b.snippet.publishedAt) - new Date(a.snippet.publishedAt));
+                    break;
+                case 'date-asc':
+                    sortedVideos.sort((a, b) => new Date(a.snippet.publishedAt) - new Date(b.snippet.publishedAt));
+                    break;
+                case 'views':
+                    sortedVideos.sort((a, b) => {
+                        const viewsA = a.statistics ? parseInt(a.statistics.viewCount) : 0;
+                        const viewsB = b.statistics ? parseInt(b.statistics.viewCount) : 0;
+                        return viewsB - viewsA;
+                    });
+                    break;
+                case 'title':
+                    sortedVideos.sort((a, b) => a.snippet.title.localeCompare(b.snippet.title));
+                    break;
+            }
+            
+            updateVideoList(sortedVideos);
+        });
         
     } catch (error) {
         handleLoadError(error, 'template-preview', 'Error al cargar la lista de videos');
