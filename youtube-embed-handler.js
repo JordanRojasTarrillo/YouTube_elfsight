@@ -44,7 +44,43 @@
             }
         });
     });
-    
+    // Función para obtener el ID de canal a partir de diferentes identificadores
+    async function getChannelId(identifier) {
+        if (identifier.startsWith('UC')) {
+            // Es un ID de canal
+            return identifier;
+        } else if (identifier.startsWith('@')) {
+            // Es un nombre de usuario con @
+            const response = await fetch(`${YOUTUBE_API_BASE_URL}/search?part=snippet&q=${identifier}&type=channel&maxResults=1&key=${YOUTUBE_API_KEY}`);
+            const data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+                return data.items[0].id.channelId;
+            } else {
+                throw new Error('No se encontró el canal con ese nombre de usuario.');
+            }
+        } else if (identifier.length === 11) {
+            // Podría ser un ID de video, obtener el canal asociado
+            const response = await fetch(`${YOUTUBE_API_BASE_URL}/videos?part=snippet&id=${identifier}&key=${YOUTUBE_API_KEY}`);
+            const data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+                return data.items[0].snippet.channelId;
+            } else {
+                throw new Error('No se encontró el video especificado.');
+            }
+        } else {
+            // Intentar buscar como nombre de canal
+            const response = await fetch(`${YOUTUBE_API_BASE_URL}/search?part=snippet&q=${identifier}&type=channel&maxResults=1&key=${YOUTUBE_API_KEY}`);
+            const data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+                return data.items[0].id.channelId;
+            } else {
+                throw new Error('No se pudo determinar el canal.');
+            }
+        }
+    }
     
     
     document.head.appendChild(styleElement);
