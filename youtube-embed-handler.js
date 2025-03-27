@@ -44,6 +44,7 @@
             }
         });
     });
+    
     // Función para obtener el ID de canal a partir de diferentes identificadores
     async function getChannelId(identifier) {
         if (identifier.startsWith('UC')) {
@@ -81,6 +82,7 @@
             }
         }
     }
+    
     // Función para cargar canal de YouTube
 
 
@@ -761,6 +763,1647 @@ function addChannelStyles() {
         }
         return num.toString();
     }
+    
+    // Función para formatear fechas
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) {
+            return 'Hoy';
+        } else if (diffDays === 1) {
+            return 'Ayer';
+        } else if (diffDays < 7) {
+            return `Hace ${diffDays} días`;
+        } else if (diffDays < 30) {
+            const weeks = Math.floor(diffDays / 7);
+            return `Hace ${weeks} ${weeks === 1 ? 'semana' : 'semanas'}`;
+        } else if (diffDays < 365) {
+            const months = Math.floor(diffDays / 30);
+            return `Hace ${months} ${months === 1 ? 'mes' : 'meses'}`;
+        } else {
+            const years = Math.floor(diffDays / 365);
+            return `Hace ${years} ${years === 1 ? 'año' : 'años'}`;
+        }
+    }
+    
+    // Función para añadir estilos CSS para la plantilla de canal
+    function addChannelStyles() {
+        if (document.getElementById('yt-channel-styles')) return;
+        
+        const styleElement = document.createElement('style');
+        styleElement.id = 'yt-channel-styles';
+        styleElement.textContent = `
+            .yt-loading {
+                text-align: center;
+                padding: 20px;
+                font-family: Arial, sans-serif;
+            }
+            
+            .yt-error {
+                color: #cc0000;
+                text-align: center;
+                padding: 20px;
+                font-family: Arial, sans-serif;
+            }
+            
+            .yt-channel-container {
+                font-family: 'Roboto', Arial, sans-serif;
+                max-width: 100%;
+                margin: 0 auto;
+                color: #0f0f0f;
+                background: #fff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            }
+            
+            .yt-channel-banner {
+                width: 100%;
+                height: 0;
+                padding-bottom: 16.25%;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .yt-channel-banner img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            .yt-channel-info {
+                padding: 16px;
+            }
+            
+            .yt-channel-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 16px;
+            }
+            
+            .yt-channel-avatar {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                margin-right: 16px;
+            }
+            
+            .yt-channel-details {
+                flex: 1;
+            }
+            
+            .yt-channel-details h2 {
+                margin: 0 0 4px 0;
+                font-size: 20px;
+            }
+            
+            .yt-channel-stats {
+                color: #606060;
+                font-size: 14px;
+                margin: 0 0 12px 0;
+            }
+            
+            .yt-subscribe-btn {
+                background-color: #cc0000;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 2px;
+                font-size: 14px;
+                font-weight: 500;
+                cursor: pointer;
+            }
+            
+            .yt-channel-description {
+                font-size: 14px;
+                line-height: 1.4;
+                margin-bottom: 16px;
+                color: #606060;
+            }
+            
+            .yt-channel-videos {
+                padding: 0 16px 16px;
+            }
+            
+            .yt-channel-videos h3 {
+                font-size: 16px;
+                margin: 0 0 16px 0;
+            }
+            
+            .yt-video-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 16px;
+            }
+            
+            .yt-video-card {
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .yt-video-card:hover {
+                transform: translateY(-2px);
+            }
+            
+            .yt-thumbnail-container {
+                position: relative;
+                width: 100%;
+                padding-bottom: 56.25%;
+                margin-bottom: 8px;
+            }
+            
+            .yt-thumbnail-container img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            
+            .yt-play-button {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 48px;
+                height: 48px;
+                background: rgba(0,0,0,0.7);
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+            
+            .yt-play-button:after {
+                content: '';
+                display: block;
+                width: 0;
+                height: 0;
+                border-top: 10px solid transparent;
+                border-bottom: 10px solid transparent;
+                border-left: 16px solid white;
+                margin-left: 4px;
+            }
+            
+            .yt-thumbnail-container:hover .yt-play-button {
+                opacity: 1;
+            }
+            
+            .yt-video-info h4 {
+                margin: 0 0 4px 0;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 1.2;
+                max-height: 2.4em;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            
+            .yt-video-info p {
+                margin: 0;
+                font-size: 12px;
+                color: #606060;
+            }
+            
+            .yt-video-modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.8);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            }
+            
+            .yt-modal-content {
+                position: relative;
+                width: 90%;
+                max-width: 800px;
+                aspect-ratio: 16/9;
+            }
+            
+            .yt-close-modal {
+                position: absolute;
+                top: -30px;
+                right: 0;
+                color: white;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            
+            @media (max-width: 768px) {
+                .yt-video-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                }
+                
+                .yt-channel-avatar {
+                    width: 60px;
+                    height: 60px;
+                }
+                
+                .yt-channel-details h2 {
+                    font-size: 18px;
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .yt-channel-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .yt-channel-avatar {
+                    margin-bottom: 12px;
+                }
+                
+                .yt-video-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        `;
+        
+        document.head.appendChild(styleElement);
+    }
+    
+    // Función para añadir estilos CSS para la plantilla de cuadrícula de videos
+    function addGridStyles() {
+        if (document.getElementById('yt-grid-styles')) return;
+        
+        const styleElement = document.createElement('style');
+        styleElement.id = 'yt-grid-styles';
+        styleElement.textContent = `
+            .yt-grid-container {
+                font-family: 'Roboto', Arial, sans-serif;
+                max-width: 100%;
+                margin: 0 auto;
+                color: #0f0f0f;
+                background: #fff;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+                padding: 16px;
+            }
+            
+            .yt-grid-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 20px;
+                padding-bottom: 16px;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            
+            .yt-grid-channel-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                margin-right: 12px;
+            }
+            
+            .yt-grid-header h2 {
+                margin: 0;
+                font-size: 18px;
+                font-weight: 500;
+            }
+            
+            .yt-video-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 16px;
+            }
+            
+            .yt-video-card {
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+            
+            .yt-video-card:hover {
+                transform: translateY(-2px);
+            }
+            
+            .yt-thumbnail-container {
+                position: relative;
+                width: 100%;
+                padding-bottom: 56.25%;
+                margin-bottom: 8px;
+            }
+            
+            .yt-thumbnail-container img {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 4px;
+            }
+            
+            .yt-play-button {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 48px;
+                height: 48px;
+                background: rgba(0,0,0,0.7);
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                opacity: 0;
+                transition: opacity 0.2s;
+            }
+            
+            .yt-play-button:after {
+                content: '';
+                display: block;
+                width: 0;
+                height: 0;
+                border-top: 10px solid transparent;
+                border-bottom: 10px solid transparent;
+                border-left: 16px solid white;
+                margin-left: 4px;
+            }
+            
+            .yt-thumbnail-container:hover .yt-play-button {
+                opacity: 1;
+            }
+            
+            .yt-video-info h4 {
+                margin: 0 0 4px 0;
+                font-size: 14px;
+                font-weight: 500;
+                line-height: 1.2;
+                max-height: 2.4em;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+            
+            .yt-video-info p {
+                margin: 0;
+                font-size: 12px;
+                color: #606060;
+            }
+            
+            @media (max-width: 768px) {
+                .yt-video-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                }
+            }
+            
+            @media (max-width: 480px) {
+                .yt-video-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        `;
+        
+        document.head.appendChild(styleElement);
+    }
+    
+    // Funciones para las otras plantillas (implementaciones mínimas)
+    function loadSingleVideo(identifier, container) {
+        container.innerHTML = '<p>Plantilla de Single Video: Próximamente</p>';
+    }
+    
+    function loadYouTubeSubscribe(identifier, container) {
+        container.innerHTML = '<p>Plantilla de YouTube Subscribe: Próximamente</p>';
+    }
+    
+    function loadVideoGallery(identifier, container) {
+        container.innerHTML = '<p>Plantilla de Video Gallery: Próximamente</p>';
+    }
+    
+    function loadVideoList(identifier, container) {
+        container.innerHTML = '<p>Plantilla de Video List: Próximamente</p>';
+    }
+    // ===== PLANTILLA 4: YOUTUBE SUBSCRIBE =====
+async function loadYouTubeSubscribe(channelIdOrUsername, container) {
+    container.innerHTML = '<div class="yt-loading">Cargando canal...</div>';
+    
+    try {
+        // Determinar si es un ID de canal, nombre de usuario o ID de video
+        let channelId = await getChannelId(channelIdOrUsername);
+        
+        // Obtener información del canal
+        const channelResponse = await fetch(`${YOUTUBE_API_BASE_URL}/channels?part=snippet,statistics&id=${channelId}&key=${YOUTUBE_API_KEY}`);
+        const channelData = await channelResponse.json();
+        
+        if (!channelData.items || channelData.items.length === 0) {
+            throw new Error('No se pudo obtener información del canal.');
+        }
+        
+        const channel = channelData.items[0];
+        
+        // Generar HTML para el botón de suscripción
+        const subscribeHTML = `
+            <div class="yt-subscribe-container">
+                <div class="yt-subscribe-card">
+                    <img class="yt-subscribe-avatar" src="${channel.snippet.thumbnails.medium.url}" alt="${channel.snippet.title}">
+                    <div class="yt-subscribe-info">
+                        <h3>${channel.snippet.title}</h3>
+                        <p>${formatNumber(channel.statistics.subscriberCount)} suscriptores</p>
+                        <button class="yt-subscribe-btn-large">SUSCRIBIRSE</button>
+                    </div>
+                </div>
+                <div class="yt-subscribe-description">
+                    ${channel.snippet.description.split('\n').slice(0, 2).join('<br>')}
+                    ${channel.snippet.description.split('\n').length > 2 ? '...' : ''}
+                </div>
+                <div class="yt-subscribe-footer">
+                    <a href="https://www.youtube.com/channel/${channelId}" target="_blank" class="yt-visit-channel">
+                        Visitar canal
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        // Añadir estilos si no existen
+        addSubscribeStyles();
+        
+        // Mostrar el HTML
+        container.innerHTML = subscribeHTML;
+        
+        // Añadir event listener para el botón de suscripción
+        container.querySelector('.yt-subscribe-btn-large').addEventListener('click', function() {
+            window.open(`https://www.youtube.com/channel/${channelId}?sub_confirmation=1`, '_blank');
+        });
+        
+    } catch (error) {
+        console.error('Error al cargar el botón de suscripción:', error);
+        container.innerHTML = `<p class="yt-error">Error: ${error.message}</p>`;
+    }
+}
+
+// Función para añadir estilos CSS para la plantilla de suscripción
+function addSubscribeStyles() {
+    if (document.getElementById('yt-subscribe-styles')) return;
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = 'yt-subscribe-styles';
+    styleElement.textContent = `
+        .yt-subscribe-container {
+            font-family: 'Roboto', Arial, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            color: #0f0f0f;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            padding: 16px;
+        }
+        
+        .yt-subscribe-card {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .yt-subscribe-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-right: 16px;
+            object-fit: cover;
+        }
+        
+        .yt-subscribe-info {
+            flex: 1;
+        }
+        
+        .yt-subscribe-info h3 {
+            margin: 0 0 4px 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .yt-subscribe-info p {
+            margin: 0 0 12px 0;
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .yt-subscribe-btn-large {
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .yt-subscribe-btn-large:hover {
+            background-color: #990000;
+        }
+        
+        .yt-subscribe-description {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #606060;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .yt-subscribe-footer {
+            text-align: right;
+        }
+        
+        .yt-visit-channel {
+            display: inline-block;
+            color: #065fd4;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .yt-visit-channel:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 480px) {
+            .yt-subscribe-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .yt-subscribe-avatar {
+                margin-right: 0;
+                margin-bottom: 12px;
+            }
+        }
+    `;
+    
+    document.head.appendChild(styleElement);
+}
+    // ===== PLANTILLA 5: VIDEO GALLERY =====
+async function loadVideoGallery(channelIdOrUsername, container) {
+    container.innerHTML = '<div class="yt-loading">Cargando galería de videos...</div>';
+    
+    try {
+        // Determinar si es un ID de canal, nombre de usuario o ID de video
+        let channelId = await getChannelId(channelIdOrUsername);
+        
+        // Obtener información del canal
+        const channelResponse = await fetch(`${YOUTUBE_API_BASE_URL}/channels?part=snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`);
+        const channelData = await channelResponse.json();
+        
+        if (!channelData.items || channelData.items.length === 0) {
+            throw new Error('No se pudo obtener información del canal.');
+        }
+        
+        const channel = channelData.items[0];
+        
+        // Obtener videos populares del canal
+        const videosResponse = await fetch(`${YOUTUBE_API_BASE_URL}/search?part=snippet&channelId=${channelId}&order=viewCount&maxResults=12&type=video&key=${YOUTUBE_API_KEY}`);
+        const videosData = await videosResponse.json();
+        
+        if (!videosData.items || videosData.items.length === 0) {
+            throw new Error('No se encontraron videos en este canal.');
+        }
+        
+        // Obtener detalles adicionales de los videos (duración, vistas)
+        const videoIds = videosData.items.map(item => item.id.videoId).join(',');
+        const videoDetailsResponse = await fetch(`${YOUTUBE_API_BASE_URL}/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
+        const videoDetailsData = await videoDetailsResponse.json();
+        
+        // Combinar datos de videos con sus detalles
+        const videos = videosData.items.map(item => {
+            const details = videoDetailsData.items.find(detail => detail.id === item.id.videoId);
+            return {
+                ...item,
+                contentDetails: details ? details.contentDetails : null,
+                statistics: details ? details.statistics : null
+            };
+        });
+        
+        // Generar HTML para la galería de videos
+        const galleryHTML = `
+            <div class="yt-gallery-container">
+                <div class="yt-gallery-header">
+                    <div class="yt-gallery-channel-info">
+                        <img src="${channel.snippet.thumbnails.default.url}" alt="${channel.snippet.title}">
+                        <h2>${channel.snippet.title}</h2>
+                    </div>
+                    
+                    <div class="yt-gallery-controls">
+                        <div class="yt-gallery-view-toggle">
+                            <button class="yt-gallery-grid-btn active">Cuadrícula</button>
+                            <button class="yt-gallery-list-btn">Lista</button>
+                        </div>
+                        
+                        <div class="yt-gallery-filter">
+                            <select class="yt-gallery-sort">
+                                <option value="popular">Más populares</option>
+                                <option value="recent">Más recientes</option>
+                                <option value="oldest">Más antiguos</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="yt-gallery-videos yt-gallery-grid-view">
+                    ${videos.map(video => `
+                        <div class="yt-gallery-video" data-video-id="${video.id.videoId}">
+                            <div class="yt-thumbnail-container">
+                                <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}">
+                                <div class="yt-play-button"></div>
+                                ${video.contentDetails?.duration ? 
+                                    `<div class="yt-video-duration">${formatDuration(video.contentDetails.duration)}</div>` : ''}
+                            </div>
+                            <div class="yt-gallery-video-info">
+                                <h4>${video.snippet.title}</h4>
+                                <div class="yt-gallery-video-meta">
+                                    ${video.statistics?.viewCount ? 
+                                        `<span>${formatNumber(video.statistics.viewCount)} visualizaciones</span>` : ''}
+                                    <span>${formatDate(video.snippet.publishedAt)}</span>
+                                </div>
+                                <p class="yt-gallery-video-desc">${video.snippet.description.split('\n')[0]}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="yt-gallery-pagination">
+                    <button class="yt-gallery-page-btn" disabled>1</button>
+                    <button class="yt-gallery-page-btn">2</button>
+                    <button class="yt-gallery-page-btn">3</button>
+                    <button class="yt-gallery-next-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Añadir estilos si no existen
+        addGalleryStyles();
+        
+        // Mostrar el HTML
+        container.innerHTML = galleryHTML;
+        
+        // Añadir event listeners para los videos
+        container.querySelectorAll('.yt-gallery-video').forEach(card => {
+            card.addEventListener('click', function() {
+                const videoId = this.getAttribute('data-video-id');
+                showVideoModal(videoId);
+            });
+        });
+        
+        // Añadir event listeners para los controles de vista
+        const gridBtn = container.querySelector('.yt-gallery-grid-btn');
+        const listBtn = container.querySelector('.yt-gallery-list-btn');
+        const videosContainer = container.querySelector('.yt-gallery-videos');
+        
+        if (gridBtn && listBtn && videosContainer) {
+            gridBtn.addEventListener('click', function() {
+                videosContainer.className = 'yt-gallery-videos yt-gallery-grid-view';
+                gridBtn.classList.add('active');
+                listBtn.classList.remove('active');
+            });
+            
+            listBtn.addEventListener('click', function() {
+                videosContainer.className = 'yt-gallery-videos yt-gallery-list-view';
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            });
+        }
+        
+        // Añadir event listener para el selector de ordenamiento
+        const sortSelect = container.querySelector('.yt-gallery-sort');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                // En una implementación real, aquí se reordenarían los videos
+                // Por ahora solo mostramos un mensaje
+                alert('Ordenamiento cambiado a: ' + this.value);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar la galería de videos:', error);
+        container.innerHTML = `<p class="yt-error">Error: ${error.message}</p>`;
+    }
+}
+
+// Función para añadir estilos CSS para la plantilla de galería de videos
+function addGalleryStyles() {
+    if (document.getElementById('yt-gallery-styles')) return;
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = 'yt-gallery-styles';
+    styleElement.textContent = `
+        .yt-gallery-container {
+            font-family: 'Roboto', Arial, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            color: #0f0f0f;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            padding: 16px;
+        }
+        
+        .yt-gallery-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .yt-gallery-channel-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .yt-gallery-channel-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .yt-gallery-channel-info h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .yt-gallery-controls {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .yt-gallery-view-toggle {
+            display: flex;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .yt-gallery-view-toggle button {
+            background: none;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .yt-gallery-view-toggle button.active {
+            background-color: #f1f1f1;
+            font-weight: 500;
+        }
+        
+        .yt-gallery-filter select {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .yt-gallery-videos {
+            margin-bottom: 20px;
+        }
+        
+        .yt-gallery-grid-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        
+        .yt-gallery-list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .yt-gallery-list-view .yt-gallery-video {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .yt-gallery-list-view .yt-thumbnail-container {
+            width: 240px;
+            flex-shrink: 0;
+        }
+        
+        .yt-gallery-video {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .yt-gallery-video:hover {
+            transform: translateY(-2px);
+        }
+        
+        .yt-thumbnail-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            margin-bottom: 8px;
+        }
+        
+        .yt-thumbnail-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .yt-play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .yt-play-button:after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 16px solid white;
+            margin-left: 4px;
+        }
+        
+        .yt-thumbnail-container:hover .yt-play-button {
+            opacity: 1;
+        }
+        
+        .yt-video-duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .yt-gallery-video-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.2;
+            max-height: 2.4em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .yt-gallery-video-meta {
+            display: flex;
+            gap: 8px;
+            color: #606060;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .yt-gallery-video-desc {
+            margin: 0;
+            font-size: 12px;
+            color: #606060;
+            line-height: 1.3;
+            max-height: 2.6em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .yt-gallery-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .yt-gallery-page-btn, .yt-gallery-next-btn {
+            background: none;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .yt-gallery-page-btn[disabled] {
+            background-color: #065fd4;
+            color: white;
+            border-color: #065fd4;
+            cursor: default;
+        }
+        
+        .yt-gallery-next-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .yt-gallery-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+            
+            .yt-gallery-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .yt-gallery-grid-view {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            }
+            
+            .yt-gallery-list-view .yt-thumbnail-container {
+                width: 120px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .yt-gallery-list-view .yt-gallery-video {
+                flex-direction: column;
+            }
+            
+            .yt-gallery-list-view .yt-thumbnail-container {
+                width: 100%;
+            }
+            
+            .yt-gallery-grid-view {
+                grid-template-columns: 1fr;
+            }
+        }
+    `;
+    
+    document.head.appendChild(styleElement);
+}
+    // ===== PLANTILLA 3: SINGLE VIDEO =====
+async function loadSingleVideo(videoId, container) {
+    container.innerHTML = '<div class="yt-loading">Cargando video...</div>';
+    
+    try {
+        // Verificar que sea un ID de video válido
+        if (!videoId || videoId.length !== 11) {
+            // Intentar extraer el ID si es una URL
+            const match = videoId.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+            if (match && match[1]) {
+                videoId = match[1];
+            } else {
+                throw new Error('ID de video no válido.');
+            }
+        }
+        
+        // Obtener información del video
+        const videoResponse = await fetch(`${YOUTUBE_API_BASE_URL}/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${YOUTUBE_API_KEY}`);
+        const videoData = await videoResponse.json();
+        
+        if (!videoData.items || videoData.items.length === 0) {
+            throw new Error('No se pudo obtener información del video.');
+        }
+        
+        const video = videoData.items[0];
+        const snippet = video.snippet;
+        const statistics = video.statistics;
+        
+        // Obtener información del canal
+        const channelResponse = await fetch(`${YOUTUBE_API_BASE_URL}/channels?part=snippet&id=${snippet.channelId}&key=${YOUTUBE_API_KEY}`);
+        const channelData = await channelResponse.json();
+        
+        const channelSnippet = channelData.items[0].snippet;
+        
+        // Generar HTML para el video
+        const videoHTML = `
+            <div class="yt-single-video-container">
+                <div class="yt-video-player" data-video-id="${videoId}">
+                    <div class="yt-thumbnail-container">
+                        <img src="${snippet.thumbnails.high.url}" alt="${snippet.title}">
+                        <div class="yt-play-button"></div>
+                        ${video.contentDetails?.duration ? 
+                            `<div class="yt-video-duration">${formatDuration(video.contentDetails.duration)}</div>` : ''}
+                    </div>
+                </div>
+                
+                <div class="yt-video-details">
+                    <h2>${snippet.title}</h2>
+                    
+                    <div class="yt-video-meta">
+                        <span class="yt-video-views">${formatNumber(statistics.viewCount)} visualizaciones</span>
+                        <span class="yt-video-date">${formatDate(snippet.publishedAt)}</span>
+                    </div>
+                    
+                    <div class="yt-video-stats">
+                        <div class="yt-video-likes">
+                            <span class="yt-like-icon">👍</span>
+                            <span>${formatNumber(statistics.likeCount)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="yt-channel-info-small">
+                        <img src="${channelSnippet.thumbnails.default.url}" alt="${channelSnippet.title}" class="yt-channel-avatar-small">
+                        <span>${channelSnippet.title}</span>
+                    </div>
+                    
+                    <div class="yt-video-description">
+                        ${snippet.description.split('\n').slice(0, 3).join('<br>')}
+                        ${snippet.description.split('\n').length > 3 ? '...' : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Añadir estilos si no existen
+        addSingleVideoStyles();
+        
+        // Mostrar el HTML
+        container.innerHTML = videoHTML;
+        
+        // Añadir event listener para reproducir el video
+        container.querySelector('.yt-video-player').addEventListener('click', function() {
+            showVideoModal(videoId);
+        });
+        
+    } catch (error) {
+        console.error('Error al cargar el video:', error);
+        container.innerHTML = `<p class="yt-error">Error: ${error.message}</p>`;
+    }
+}
+
+// Función para formatear la duración del video
+function formatDuration(duration) {
+    if (!duration) return '0:00';
+    
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    
+    if (!match) return '0:00';
+    
+    const hours = match[1] ? parseInt(match[1]) : 0;
+    const minutes = match[2] ? parseInt(match[2]) : 0;
+    const seconds = match[3] ? parseInt(match[3]) : 0;
+    
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+        return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+}
+
+// Función para añadir estilos CSS para la plantilla de video individual
+function addSingleVideoStyles() {
+    if (document.getElementById('yt-single-video-styles')) return;
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = 'yt-single-video-styles';
+    styleElement.textContent = `
+        .yt-single-video-container {
+            font-family: 'Roboto', Arial, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            color: #0f0f0f;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            padding: 0 0 16px 0;
+        }
+        
+        .yt-video-player {
+            cursor: pointer;
+            position: relative;
+            width: 100%;
+        }
+        
+        .yt-video-duration {
+            position: absolute;
+            bottom: 12px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .yt-video-details {
+            padding: 16px;
+        }
+        
+        .yt-video-details h2 {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            line-height: 1.3;
+        }
+        
+        .yt-video-meta {
+            display: flex;
+            gap: 12px;
+            color: #606060;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        
+        .yt-video-stats {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .yt-video-likes {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #606060;
+            font-size: 14px;
+        }
+        
+        .yt-like-icon {
+            font-size: 16px;
+        }
+        
+        .yt-channel-info-small {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .yt-channel-avatar-small {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+        
+        .yt-video-description {
+            font-size: 14px;
+            line-height: 1.4;
+            color: #606060;
+            white-space: pre-line;
+        }
+        
+        @media (max-width: 480px) {
+            .yt-video-meta {
+                flex-direction: column;
+                gap: 4px;
+            }
+        }
+    `;
+    
+    document.head.appendChild(styleElement);
+    
+}
+    // ===== PLANTILLA 7: VIDEO LIST =====
+async function loadVideoList(channelIdOrUsername, container) {
+    container.innerHTML = '<div class="yt-loading">Cargando lista de videos...</div>';
+    
+    try {
+        // Determinar si es un ID de canal, nombre de usuario o ID de video
+        let channelId = await getChannelId(channelIdOrUsername);
+        
+        // Obtener información del canal
+        const channelResponse = await fetch(`${YOUTUBE_API_BASE_URL}/channels?part=snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`);
+        const channelData = await channelResponse.json();
+        
+        if (!channelData.items || channelData.items.length === 0) {
+            throw new Error('No se pudo obtener información del canal.');
+        }
+        
+        const channel = channelData.items[0];
+        
+        // Obtener videos del canal
+        const videosResponse = await fetch(`${YOUTUBE_API_BASE_URL}/search?part=snippet&channelId=${channelId}&order=date&maxResults=10&type=video&key=${YOUTUBE_API_KEY}`);
+        const videosData = await videosResponse.json();
+        
+        if (!videosData.items || videosData.items.length === 0) {
+            throw new Error('No se encontraron videos en este canal.');
+        }
+        
+        // Obtener detalles adicionales de los videos (duración, vistas)
+        const videoIds = videosData.items.map(item => item.id.videoId).join(',');
+        const videoDetailsResponse = await fetch(`${YOUTUBE_API_BASE_URL}/videos?part=contentDetails,statistics&id=${videoIds}&key=${YOUTUBE_API_KEY}`);
+        const videoDetailsData = await videoDetailsResponse.json();
+        
+        // Combinar datos de videos con sus detalles
+        const videos = videosData.items.map(item => {
+            const details = videoDetailsData.items.find(detail => detail.id === item.id.videoId);
+            return {
+                ...item,
+                contentDetails: details ? details.contentDetails : null,
+                statistics: details ? details.statistics : null
+            };
+        });
+        
+        // Generar HTML para la lista de videos
+        const listHTML = `
+            <div class="yt-list-container">
+                <div class="yt-list-header">
+                    <div class="yt-list-channel-info">
+                        <img src="${channel.snippet.thumbnails.default.url}" alt="${channel.snippet.title}" class="yt-list-channel-avatar">
+                        <h2>${channel.snippet.title} - Videos recientes</h2>
+                    </div>
+                    
+                    <div class="yt-list-filter">
+                        <select class="yt-list-sort">
+                            <option value="recent">Más recientes</option>
+                            <option value="popular">Más populares</option>
+                            <option value="oldest">Más antiguos</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="yt-video-list">
+                    ${videos.map((video, index) => `
+                        <div class="yt-list-item" data-video-id="${video.id.videoId}">
+                            <div class="yt-list-number">${index + 1}</div>
+                            <div class="yt-list-thumbnail">
+                                <img src="${video.snippet.thumbnails.medium.url}" alt="${video.snippet.title}">
+                                <div class="yt-play-button-small"></div>
+                                ${video.contentDetails?.duration ? 
+                                    `<div class="yt-video-duration">${formatDuration(video.contentDetails.duration)}</div>` : ''}
+                            </div>
+                            <div class="yt-list-info">
+                                <h4>${video.snippet.title}</h4>
+                                <div class="yt-list-meta">
+                                    ${video.statistics?.viewCount ? 
+                                        `<span>${formatNumber(video.statistics.viewCount)} visualizaciones</span>` : ''}
+                                    <span>${formatDate(video.snippet.publishedAt)}</span>
+                                </div>
+                                <p class="yt-list-desc">${video.snippet.description.split('\n')[0]}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="yt-list-footer">
+                    <button class="yt-list-load-more">Cargar más videos</button>
+                    <a href="https://www.youtube.com/channel/${channelId}" target="_blank" class="yt-visit-channel">
+                        Ver todos los videos
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        // Añadir estilos si no existen
+        addListStyles();
+        
+        // Mostrar el HTML
+        container.innerHTML = listHTML;
+        
+        // Añadir event listeners para los videos
+        container.querySelectorAll('.yt-list-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const videoId = this.getAttribute('data-video-id');
+                showVideoModal(videoId);
+            });
+        });
+        
+        // Añadir event listener para el selector de ordenamiento
+        const sortSelect = container.querySelector('.yt-list-sort');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                // En una implementación real, aquí se reordenarían los videos
+                // Por ahora solo mostramos un mensaje
+                alert('Ordenamiento cambiado a: ' + this.value);
+            });
+        }
+        
+        // Añadir event listener para el botón de cargar más
+        const loadMoreBtn = container.querySelector('.yt-list-load-more');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', function() {
+                // En una implementación real, aquí se cargarían más videos
+                // Por ahora solo mostramos un mensaje
+                alert('Esta función cargará más videos en una implementación completa.');
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar la lista de videos:', error);
+        container.innerHTML = `<p class="yt-error">Error: ${error.message}</p>`;
+    }
+}
+
+// Función para añadir estilos CSS para la plantilla de lista de videos
+function addListStyles() {
+    if (document.getElementById('yt-list-styles')) return;
+    
+    const styleElement = document.createElement('style');
+    styleElement.id = 'yt-list-styles';
+    styleElement.textContent = `
+        .yt-list-container {
+            font-family: 'Roboto', Arial, sans-serif;
+            max-width: 100%;
+            margin: 0 auto;
+            color: #0f0f0f;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            padding: 16px;
+        }
+        
+        .yt-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .yt-list-channel-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .yt-list-channel-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .yt-list-channel-info h2 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .yt-list-filter select {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 2px;
+            background-color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .yt-video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .yt-list-item {
+            display: flex;
+            align-items: flex-start;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        
+        .yt-list-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .yt-list-number {
+            font-size: 18px;
+            font-weight: 500;
+            color: #606060;
+            margin-right: 16px;
+            min-width: 24px;
+            text-align: center;
+            padding-top: 8px;
+        }
+        
+        .yt-list-thumbnail {
+            position: relative;
+            width: 160px;
+            height: 90px;
+            margin-right: 16px;
+            flex-shrink: 0;
+        }
+        
+        .yt-list-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .yt-play-button-small {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .yt-play-button-small:after {
+            content: '';
+            display: block;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 12px solid white;
+            margin-left: 3px;
+        }
+        
+        .yt-list-thumbnail:hover .yt-play-button-small {
+            opacity: 1;
+        }
+        
+        .yt-video-duration {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .yt-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .yt-list-info h4 {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 500;
+            line-height: 1.2;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        
+        .yt-list-meta {
+            display: flex;
+            gap: 8px;
+            color: #606060;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .yt-list-desc {
+            margin: 0;
+            font-size: 12px;
+            color: #606060;
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+        }
+        
+        .yt-list-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .yt-list-load-more {
+            background-color: #f1f1f1;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .yt-list-load-more:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .yt-visit-channel {
+            color: #065fd4;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .yt-visit-channel:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .yt-list-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            .yt-list-filter {
+                width: 100%;
+            }
+            
+            .yt-list-filter select {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .yt-list-item {
+                flex-wrap: wrap;
+            }
+            
+            .yt-list-number {
+                display: none;
+            }
+            
+            .yt-list-thumbnail {
+                width: 120px;
+                height: 68px;
+            }
+            
+            .yt-list-info {
+                width: calc(100% - 136px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .yt-list-item {
+                flex-direction: column;
+            }
+            
+            .yt-list-thumbnail {
+                width: 100%;
+                height: 0;
+                padding-bottom: 56.25%;
+                margin-right: 0;
+                margin-bottom: 8px;
+            }
+            
+            .yt-list-info {
+                width: 100%;
+            }
+            
+            .yt-list-footer {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .yt-list-load-more {
+                width: 100%;
+            }
+        }
+    `;
     
     document.head.appendChild(styleElement);
 }
