@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Plantilla seleccionada:', selectedTemplate);
         });
     });
+    
     // Event listener para el botón de selección
     selectBtn.addEventListener('click', function() {
         if (!selectedTemplate) {
@@ -61,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
     });
+    
     // Event listener para el botón de búsqueda
     searchBtn.addEventListener('click', function() {
         const url = videoUrlInput.value.trim();
@@ -133,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Extracted info:', { videoId, channelId, username });
         return { videoId, channelId, username };
     }
+    
     // Función para cargar la plantilla seleccionada
     function loadSelectedTemplate(templateId, { videoId, channelId, username, url }) {
         console.log('Loading template:', templateId, 'with data:', { videoId, channelId, username, url });
@@ -224,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
             username: currentUsername
         });
     });
+    
     // Función para generar código embed
     function generateEmbedCode(templateId, { videoId, channelId, username }) {
         if (!templateId) {

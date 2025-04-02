@@ -1,3 +1,5 @@
+
+
 async function loadVideoGrid(channelId) {
     try {
         const templatePreview = document.getElementById('template-preview');
@@ -84,6 +86,7 @@ async function loadVideoGrid(channelId) {
                 </div>
             </div>
         `;
+        
         // Almacenar todos los videos para filtrado
         const allVideos = [...videosWithDetails];
         
@@ -133,7 +136,6 @@ async function loadVideoGrid(channelId) {
             // Volver a añadir event listeners
             addVideoListeners();
         });
-        
         
     } catch (error) {
         handleLoadError(error, 'template-preview', 'Error al cargar la cuadrícula de videos');

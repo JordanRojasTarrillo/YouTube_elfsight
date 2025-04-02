@@ -155,6 +155,7 @@ async function loadVideoGallery(channelIdOrVideoId) {
                 </div>
             </div>
         `;
+        
         // Almacenar todos los videos para filtrado
         const allVideos = [...videosWithStats];
         
@@ -261,7 +262,6 @@ async function loadVideoGallery(channelIdOrVideoId) {
             // Volver a añadir event listeners a los videos
             addVideoListeners();
         });
-        
         
     } catch (error) {
         handleLoadError(error, 'template-preview', 'Error al cargar la galería de videos');
